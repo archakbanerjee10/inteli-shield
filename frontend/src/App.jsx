@@ -1,64 +1,50 @@
-import { useRef, useState } from "react";
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import ScanProgress from "./components/ScanProgress";
-import ResultsDashboard from "./components/ResultsDashboard";
-import { scanTarget } from "./services/mockApi";
+import React, { useState } from 'react';
+import { scanTarget } from './services/Api';
+import ResultsDashboard from './components/ResultsDashboard';
 
 export default function App() {
-  const [mode, setMode] = useState("url");
-  const [value, setValue] = useState("");
-  const [scanning, setScanning] = useState(false);
-  const [step, setStep] = useState(0);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState("");
-  const scanId = useRef(0);
+  const [inputVal, setInputVal] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [scanResult, setScanResult] = useState(null);
 
-  const handleScan = async () => {
-    if (!value.trim() || scanning) return;
-    const id = ++scanId.current;
-    setResult(null);
-    setError("");
-    setStep(0);
-    setScanning(true);
+  const handleScan = async (e) => {
+    e.preventDefault();
+    if (!inputVal.trim()) return;
 
+    setLoading(true);
     try {
-      const data = await scanTarget(value, (s) => {
-        if (id === scanId.current) setStep(s);
-      });
-      if (id === scanId.current) setResult(data);
-    } catch {
-      if (id === scanId.current) setError("The scan failed. Check your connection and try again.");
+      const data = await scanTarget(inputVal);
+      setScanResult(data);
+    } catch (err) {
+      alert('Failed to connect to FastAPI backend. Ensure uvicorn is running.');
     } finally {
-      if (id === scanId.current) setScanning(false);
+      setLoading(false);
     }
   };
 
-  const handleModeChange = (next) => {
-    setMode(next);
-    setValue("");
-    setResult(null);
-    setError("");
-  };
-
   return (
-    <div className="min-h-screen bg-zinc-950 font-sans text-zinc-100 antialiased selection:bg-zinc-700">
-      <Navbar />
-      <main>
-        <Hero
-          mode={mode}
-          onModeChange={handleModeChange}
-          value={value}
-          onValueChange={setValue}
-          onSubmit={handleScan}
-          scanning={scanning}
-        />
-        {scanning && <ScanProgress step={step} />}
-        {error && (
-          <p className="mx-auto max-w-xl px-4 pb-10 text-center text-sm text-rose-400">{error}</p>
-        )}
-        {result && !scanning && <ResultsDashboard result={result} />}
-      </main>
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 p-6">
+      <div className="max-w-4xl mx-auto mb-10 text-center space-y-4">
+        <h1 className="text-3xl font-bold tracking-tight">Inteli-Shield Intelligence</h1>
+        <form onSubmit={handleScan} className="flex gap-3 justify-center">
+          <input
+            type="text"
+            value={inputVal}
+            onChange={(e) => setInputVal(e.target.value)}
+            placeholder="Enter URL or threat target (e.g., netflix-billing.xyz)..."
+            className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 w-96 text-sm focus:outline-none focus:border-cyan-500"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-cyan-600 hover:bg-cyan-500 px-6 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
+          >
+            {loading ? 'Analyzing...' : 'Scan Target'}
+          </button>
+        </form>
+      </div>
+
+      {scanResult && <ResultsDashboard result={scanResult} />}
     </div>
   );
 }
