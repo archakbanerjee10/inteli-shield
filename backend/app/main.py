@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.schemas import ScanRequest, ScanResponse
 from api.ai_engine import synthesize_threat_report
@@ -20,21 +20,33 @@ app.add_middleware(
 
 @app.get("/health")
 async def health_check():
-    return {
-        "status": "operational",
-        "project": "Inteli-Shield",
-        "message": "FastAPI security engine running with Groq AI & TLS Verification!"
-    }
+    return {"status": "operational", "project": "Inteli-Shield"}
 
 @app.post("/api/v1/scan", response_model=ScanResponse)
 async def run_threat_scan(payload: ScanRequest):
-    # 1. Run AI Social Engineering & Threat Synthesis
-    ai_evaluation = synthesize_threat_report(payload.target)
+    try:
+        # 1. Run AI Threat Synthesis
+        ai_evaluation = synthesize_threat_report(payload.target)
+    except Exception as e:
+        # Fallback if Groq API fails or key is missing
+        ai_evaluation = {
+            "verdict": "Suspicious",
+            "confidence_score": 0.6,
+            "social_engineering_hooks": ["API Synthesis Warning: AI engine fallback triggered."],
+            "explainable_rationale": f"Could not reach AI model securely. Error: {str(e)}",
+            "actionable_remediation": ["Verify network connection and Groq API key."]
+        }
 
-    # 2. Run TLS/SSL Low-Level Certificate Inspection
-    tls_evaluation = analyze_tls_certificate(payload.target)
+    try:
+        # 2. Run TLS/SSL Certificate Inspection
+        tls_evaluation = analyze_tls_certificate(payload.target)
+    except Exception as e:
+        tls_evaluation = {
+            "has_tls": False,
+            "risk_signals": [f"TLS Inspection Error: {str(e)}"]
+        }
 
-    # 3. Combine Technical Anomalies from both AI + TLS Engine
+    # 3. Combine Technical Anomalies
     combined_anomalies = list(ai_evaluation.get("technical_anomalies", []))
     for tls_signal in tls_evaluation.get("risk_signals", []):
         if tls_signal not in combined_anomalies:
@@ -42,7 +54,7 @@ async def run_threat_scan(payload: ScanRequest):
 
     return ScanResponse(
         target=payload.target,
-        verdict=ai_evaluation.get("verdict", "Inconclusive"),
+        verdict=ai_evaluation.get("verdict", "Suspicious"),
         confidence_score=ai_evaluation.get("confidence_score", 0.5),
         social_engineering_hooks=ai_evaluation.get("social_engineering_hooks", []),
         technical_anomalies=combined_anomalies,
