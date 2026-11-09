@@ -1,0 +1,15 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# Environment variables
+.env
+.env.*
+C:\Users\aeccs\OneDrive\Desktop\New-Folder\backend\.env
+
+# Allow example environment file
+!.env.example
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
