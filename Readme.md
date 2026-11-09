@@ -20,7 +20,6 @@ Backend: Python, FastAPI, Uvicorn, Pydantic, Python-Dotenv
 AI & Security Layer: Groq API (openai/gpt-oss-20b), Python Standard Library (ssl, socket)
 
 Project Structure
-Plaintext
 New-Folder/
 ├── backend/
 │   ├── app/
