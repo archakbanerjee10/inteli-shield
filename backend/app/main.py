@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.schemas import ScanRequest, ScanResponse, SeverityRating
+from api.ai_engine import synthesize_threat_report
 
 app = FastAPI(
     title="Inteli-Shield API",
@@ -26,31 +27,15 @@ async def health_check():
 
 @app.post("/api/v1/scan", response_model=ScanResponse)
 async def run_threat_scan(payload: ScanRequest):
-    # Provisional evaluation logic (we will plug in real URL checkers & LLM next!)
-    target = payload.target
-    
-    # Simple keyword heuristic mock for testing the pipeline
-    is_malicious = "phish" in target.lower() or "paypa1" in target.lower() or "urgent" in target.lower()
-    
-    if is_malicious:
-        verdict = SeverityRating.MALICIOUS
-        confidence = 0.95
-        rationale = "Target contains known deceptive patterns, typosquatting indicators, or high-pressure social engineering hooks."
-        anomalies = ["Typosquatting detected", "Suspicious TLD or redirect pattern"]
-        remediation = ["Do not click or enter credentials.", "Report URL to threat registries."]
-    else:
-        verdict = SeverityRating.LOW
-        confidence = 0.92
-        rationale = "Target exhibits valid structure, standard cryptographic configuration, and lacks active threat signatures."
-        anomalies = []
-        remediation = ["Target appears safe for standard interaction."]
+    # Pass the target straight into our Gemini AI Threat Synthesis Engine
+    ai_evaluation = synthesize_threat_report(payload.target)
 
     return ScanResponse(
-        target=target,
-        verdict=verdict,
-        confidence_score=confidence,
-        social_engineering_hooks=["Urgency cue" if is_malicious else "None"],
-        technical_anomalies=anomalies,
-        explainable_rationale=rationale,
-        actionable_remediation=remediation
+        target=payload.target,
+        verdict=ai_evaluation.get("verdict", "Inconclusive"),
+        confidence_score=ai_evaluation.get("confidence_score", 0.5),
+        social_engineering_hooks=ai_evaluation.get("social_engineering_hooks", []),
+        technical_anomalies=ai_evaluation.get("technical_anomalies", []),
+        explainable_rationale=ai_evaluation.get("explainable_rationale", "No rationale returned."),
+        actionable_remediation=ai_evaluation.get("actionable_remediation", [])
     )
