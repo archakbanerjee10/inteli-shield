@@ -30,7 +30,7 @@ def synthesize_threat_report(target: str) -> dict:
 
     # Using gemini-2.5-flash or standard flash model for fast hackathon inference
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-flash-latest",
         generation_config={
             "response_mime_type": "application/json"
         }
