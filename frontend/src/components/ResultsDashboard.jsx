@@ -2,7 +2,7 @@ import { AlertTriangle, BrainCircuit, CheckCircle2, Link2, Lock, XCircle } from 
 import Badge, { TONE_BAR } from "./Badge";
 import Card from "./Card";
 import Row from "./Row";
-
+import { generateReportHash, anchorReportOnChain } from '../services/web3Service';
 const TONE_ICON = { safe: CheckCircle2, warn: AlertTriangle, crit: XCircle };
 const TONE_TEXT = { safe: "text-emerald-400", warn: "text-amber-400", crit: "text-rose-400" };
 
