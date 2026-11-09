@@ -1,8 +1,19 @@
 # Created by venv; see https://docs.python.org/3/library/venv.html
-# Environment variables
+# Environment variables and secrets
 .env
-.env.*
-C:\Users\aeccs\OneDrive\Desktop\New-Folder\backend\.env
+.env.local
+.env.*.local
+*.env
+*.env.local
+*.env.*.local
+*.env.*
+*.env.*.local
+*.env.*.*
+*.env.*.*.local
+*.env.*.*.*
+*.env.*.*.*.local
+*.env.*.*.*.*
+*.env.*.*.*.*.local
 
 # Allow example environment file
 !.env.example
