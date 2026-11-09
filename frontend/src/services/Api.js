@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { adaptScanResult } from '../utils/adapter';
-
-const API_BASE_URL = 'http://127.0.0.1:8000';
+// Automatically reads from your .env files or defaults to localhost
+const API_BASE_URL = import.meta.env.BASE_URL || 'http://127.0.0.1:8000';
 
 export const scanTarget = async (target) => {
   try {
