@@ -1,8 +1,8 @@
 import { Search } from "lucide-react";
 
 const MODES = [
-  ["url", "URL / Domain Mode"],
-  ["text", "Raw Text Payload Mode"],
+  ["url", "URL or domain"],
+  ["text", "Email or SMS text"],
 ];
 
 const SAMPLES = {
@@ -11,89 +11,87 @@ const SAMPLES = {
 };
 
 export default function Hero({ mode, onModeChange, value, onValueChange, onSubmit, scanning }) {
-  const placeholder = "Enter URL, domain name, or paste suspicious email/SMS text...";
+  const placeholder =
+    mode === "text" ? "Paste the suspicious email or SMS here" : "Enter a URL or domain, e.g. netflix-billing.xyz";
   const fieldClass =
-    "w-full bg-transparent text-left text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none";
+    "w-full bg-transparent text-left text-base text-slate-100 placeholder:text-slate-500 focus:outline-none";
 
   return (
-    <section className="mx-auto max-w-3xl px-4 pb-10 pt-14 text-center sm:px-6 sm:pt-20">
-      <h1 className="text-3xl font-semibold tracking-tight text-zinc-100 sm:text-4xl">
-        Digital trust intelligence
-      </h1>
-      <p className="mx-auto mt-3 max-w-xl text-zinc-400">
-        Analyze suspicious URLs, domains, or raw text payloads with zero-trust technical intelligence.
-      </p>
+    <section className="mx-auto max-w-6xl px-4 pb-10 pt-12 sm:px-6 sm:pt-20">
+      <div className="max-w-2xl">
+        <h1 className="font-display text-4xl font-bold leading-[1.05] tracking-tight text-slate-50 sm:text-6xl">
+          Check it before you trust it
+        </h1>
+        <p className="mt-4 max-w-xl text-lg text-slate-400">
+          Paste a suspicious link, domain or message. We check the domain, the certificate and the wording, then tell you what to do.
+        </p>
 
-      <div
-        role="tablist"
-        aria-label="Scan mode"
-        className="mt-8 inline-flex flex-wrap justify-center rounded-lg border border-zinc-800 bg-zinc-900 p-1 text-sm"
-      >
-        {MODES.map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={mode === id}
-            disabled={scanning}
-            onClick={() => onModeChange(id)}
-            className={`rounded-md px-3 py-1.5 transition-colors ${
-              mode === id ? "bg-zinc-800 text-zinc-100" : "text-zinc-400 hover:text-zinc-200"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSubmit();
-        }}
-        className="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/60 p-2 transition-colors focus-within:border-zinc-600 focus-within:ring-2 focus-within:ring-zinc-700/60"
-      >
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <div className="flex flex-1 items-start gap-2 px-3 py-2">
-            <Search className="mt-0.5 h-4 w-4 shrink-0 text-zinc-500" aria-hidden />
-            {mode === "text" ? (
-              <textarea
-                rows={3}
-                value={value}
-                disabled={scanning}
-                placeholder={placeholder}
-                onChange={(e) => onValueChange(e.target.value)}
-                className={`${fieldClass} resize-none`}
-              />
-            ) : (
-              <input
-                type="text"
-                value={value}
-                disabled={scanning}
-                placeholder={placeholder}
-                onChange={(e) => onValueChange(e.target.value)}
-                className={fieldClass}
-              />
-            )}
-          </div>
-          <button
-            type="submit"
-            disabled={scanning || !value.trim()}
-            className="rounded-lg bg-zinc-100 px-5 py-2.5 text-sm font-medium text-zinc-950 transition-colors hover:bg-white disabled:cursor-not-allowed disabled:bg-zinc-800 disabled:text-zinc-500"
-          >
-            {scanning ? "Scanning…" : "Run Threat Scan"}
-          </button>
+        <div
+          role="tablist"
+          aria-label="Scan mode"
+          className="mt-8 inline-flex flex-wrap rounded-xl border border-slate-400/15 bg-slate-900/50 p-1 text-sm"
+        >
+          {MODES.map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              aria-selected={mode === id}
+              disabled={scanning}
+              onClick={() => onModeChange(id)}
+              className={`rounded-lg px-3.5 py-1.5 transition-colors ${
+                mode === id ? "bg-slate-700/70 text-slate-50" : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-      </form>
 
-      <button
-        type="button"
-        disabled={scanning}
-        onClick={() => onValueChange(SAMPLES[mode])}
-        className="mt-3 text-xs text-zinc-500 underline-offset-4 transition-colors hover:text-zinc-300 hover:underline"
-      >
-        Use a sample suspicious input
-      </button>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit();
+          }}
+          className="glass mt-4 rounded-2xl p-2 transition-all focus-within:border-cyan-400 focus-within:ring-4 focus-within:ring-cyan-400/15"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-1 items-start gap-3 px-3 py-2.5">
+              <Search className="mt-1 h-5 w-5 shrink-0 text-slate-500" aria-hidden />
+              {mode === "text" ? (
+                <textarea
+                  rows={3}
+                  value={value}
+                  disabled={scanning}
+                  placeholder={placeholder}
+                  onChange={(e) => onValueChange(e.target.value)}
+                  className={`${fieldClass} resize-none`}
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={value}
+                  disabled={scanning}
+                  placeholder={placeholder}
+                  autoCapitalize="off"
+                  spellCheck={false}
+                  onChange={(e) => onValueChange(e.target.value)}
+                  className={fieldClass}
+                />
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={scanning || !value.trim()}
+              className="rounded-xl bg-cyan-400 px-6 py-3 text-base font-medium text-slate-950 transition hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-700/60 disabled:text-slate-500"
+            >
+              {scanning ? "Scanning…" : "Scan target"}
+            </button>
+          </div>
+        </form>
+
+
+      </div>
     </section>
   );
 }
